@@ -27,7 +27,31 @@ long long : 9,223,372,036,854,775,807  =  9 * $10^{18}$
 ```
 
 
+### 初始
+```
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef unsigned long long ull;
+using i64 = long long;
+const int N = 2e3 + 4;
+const int mod = 1e9 + 7;
+void solve() {
 
+
+	return;
+}
+
+int main() {
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	int _ = 1;
+	std::cin >> _;
+	while(_ --) {
+		solve();
+	}
+	return 0;
+}
+```
 ### __int128
 
 ```c++
@@ -700,33 +724,35 @@ ll l = 0, r = 1e10;
 ### Dijkstra
 
 ```c++
-struct node{
+struct edge {
+    int to;
     int dis;
-    int pos;
-    bool operator <(const node &x) const {
-        return x.dis < dis;
-    }
 };
 
+vector<vector<edge>> adj;
 
-    auto Dijkstra = [&](int s) -> void{
-        std::vector<int> f(n+1);
-        std::vector<bool> vis(n+1,false);
-        for(int i = 1; i <= n; ++ i) f[i] = INF;
+void add(int u, int v, int w) {
+    adj[u].push_back({v, w});
+}
+
+    adj.resize(n + 1);
+    auto Dijsktra = [&] (int s) -> void {
+        vector<i64> f(n + m + 1, INF);
+        vector<bool> vis(n + m + 1, false);
         f[s] = 0;
-        std::priority_queue<node> q;
-        q.push((node){0,s});
-        while(!q.empty()) {
+        priority_queue<node> q;
+        q.push({0, s});
+        while (!q.empty()) {
             node p = q.top();
             q.pop();
-            int x = p.pos;
-            if(vis[x]) continue;
-            vis[x] = true;
-            for(int i = head[x]; i; i = e[i].next) {
-                int y = e[i].to;
-                if(f[y] > f[x] + e[i].dis) {
-                    f[y] = f[x] + e[i].dis;
-                    q.push((node){f[y],y});
+            int u = p.pos;
+            if (vis[u]) continue;
+            vis[u] = true;
+            for (const auto &e : adj[u]) {
+                int v = e.to;
+                if (f[v] > f[u] + e.dis) {
+                    f[v] = f[u] + e.dis;
+                    q.push({f[v], v});
                 }
             }
         }
@@ -1179,4 +1205,29 @@ std::vector<int> exkmp(std::string s, std::string t) {
    }
    ```
    
-   
+   ### DSU(并查集）
+```
+class DSU {
+public : 
+	std::vector<int> parent,siz;
+	DSU(int n) {
+		parent.resize(n+1);
+        siz.resize(n+1,1);
+        for (int i = 0; i <= n; i++) parent[i] = i;
+	}
+	int find(int x) {
+		return parent[x] == x ? x : parent[x] = find(parent[x]);
+	}
+	void merge(int x,int y) {
+		int Fx = find(x);
+        int Fy = find(y);
+        if (Fx != Fy) {
+            if (siz[Fx] < siz[Fy]) {
+                std::swap(Fx, Fy);
+            }
+            parent[Fy] = Fx;
+            siz[Fx] += siz[Fy];
+        }
+	}
+};
+```
