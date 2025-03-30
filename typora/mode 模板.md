@@ -25,7 +25,9 @@ long long : 9,223,372,036,854,775,807  =  9 * $10^{18}$
 //        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //                     佛祖保佑      永无BUG
 ```
+
 ### 火车头
+
 ```
 #pragma GCC optimize(3)
 #pragma GCC target("avx")
@@ -78,6 +80,7 @@ long long : 9,223,372,036,854,775,807  =  9 * $10^{18}$
 ```
 
 ### 初始
+
 ```
 #include <bits/stdc++.h>
 typedef long long ll;
@@ -104,6 +107,7 @@ int main() {
 	return 0;
 }
 ```
+
 ### __int128
 
 ```c++
@@ -128,7 +132,9 @@ std::ostream &operator<<(std::ostream &os, i128 n) {
 }
 
 ```
+
 ### 随机数生成
+
 ```
 #include <random>
 
@@ -137,7 +143,9 @@ std::ostream &operator<<(std::ostream &os, i128 n) {
     uniform_int_distribution<ll> dist(2LL, 1000000000000000000LL);  // 随机数范围
     ll x = dist(rng);
 ```
+
 ### string
+
 ```
 class STR {
 public:
@@ -687,7 +695,9 @@ int main() {
 }
 
 ```
+
 ###  tarjan 缩点
+
 ```
 class Tarjan {
 public:
@@ -867,6 +877,7 @@ private:
 };
 
 ```
+
 ### 二分图最大匹配   匈牙利算法 $O(VE)$ 
 
 ```c++
@@ -1008,7 +1019,9 @@ ll l = 0, r = 1e10;
     //std::cout << l << ' ' << r << '\n';
 	ans = std::min({ans,check(l),check(r)});
 ```
+
 ### 实数三分 
+
 ```
 const double eps = 1e-8;
 double l = 0, r = 2e9, mid1, mid2;
@@ -1133,367 +1146,370 @@ std::vector<int> exkmp(std::string s, std::string t) {
    ```
 
    遍历结束后，`r`中存储了以每个字符为中心的最长回文子串的半径。最长回文子串的长度即为`max(r)` - 1。（因为加了新字符）
-   
+
    ### 大数 分解出 因子
-   
+
    ```c++
-i128 mul(i128 a, i128 b, i128 m) {
-    return (__int128)a * b % m;
-}
-
-
-i128 power(i128 a, i128 n, i128 mod) {
-    i128 res = 1;
-    while (n) {
-        if (n & 1) res = mul(res, a, mod);
-        a = mul(a, a, mod);
-        n >>= 1;
-    }
-    return res;
-}
-
-
-bool miller_rabin(i64 n) {
-    if (n < 2) return false;
-    if (n == 2) return true;
-    if (n % 2 == 0) return false;
-    
-    i64 d = n - 1;
-    int s = 0;
-    while (d % 2 == 0) {
-        d /= 2;
-        s++;
-    }
-    for (int a : {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}) {
-        if (n == a) return true;
-        if (n % a == 0) return false;
-        
-        i128 t = d;
-        i128 y = power(a, t, n);
-        while (t != n-1 && y != 1 && y != n-1) {
-            y = mul(y, y, n);
-            t *= 2;
-        }
-        if (y != n-1 && t % 2 == 0) return false;
-    }
-    return true;
-}
-
-i64 pollard_rho(i64 n) {  // O(n^(1/4))
-    if (n == 1) return n;
-    if (n % 2 == 0) return 2;
-    if (miller_rabin(n)) return n;
-    
-    auto f = [n](i128 x) -> i128 { 
-        return (mul(x, x, n) + rand() % (n-1) + 1) % n;
-    };
-    
-    i128 x = rand() % (n-1) + 1;
-    i128 y = x;
-    i128 prd = 1;
-    i64 i = 0, k = 2;
-    
-    while (true) {
-        i++;
-        x = f(x);
-        prd = mul(prd, abs(y - x), n);
-        
-        if (i == k || prd == 0) {
-            if (prd) {
-                i64 d = __gcd((i64)prd, n);
-                if (d != 1) return d;
-            }
-            if (i == k) {
-                y = x;
-                k *= 2;
-            }
-        }
-        
-        if (i > 1000000) {
-            i64 d = __gcd((i64)abs(y - x), n);
-            if (d > 1 && d < n) return d;
-            x = rand() % (n-1) + 1;
-            y = x;
-            i = 0;
-            k = 2;
-            prd = 1;
-        }
-    }
-}
-
-void factorize(i64 n, vector<i64>& factors) {  
-    if (n == 1) return;
-    if (miller_rabin(n)) {
-        factors.push_back(n);
-        return;
-    }
-    i64 d = pollard_rho(n);
-    factorize(d, factors);
-    factorize(n/d, factors);
-}
-vector<i64> Fget(const vector<i64>& pro) {  //dlogd  所有因子
-    unordered_map<i64, int> count;
-    for(auto x : pro) {
-        count[x]++;
-    }
-    vector<i64> factors = {1};
-    for(auto [prime, cnt] : count) {
-        int size = factors.size();
-        i64 mul = 1;
-        for(int i = 0; i < cnt; i++) {
-            mul *= prime;
-            for(int j = 0; j < size; j++) {
-                factors.push_back(factors[j] * mul);
-            }
-        }
-    }
-    sort(factors.begin(), factors.end());
-    return factors;
-}
-
-   ```
+   i128 mul(i128 a, i128 b, i128 m) {
+       return (__int128)a * b % m;
+   }
    
    
-   
-   ### 线性筛素数
-   
-   ```c++
-   	for(int i = 2;i < N; i++) {
-       	if(not_prime[i] == 0) plist[++cnt] = i;
-       	for(int j = 1;j <= cnt;j++)
-       	{
-           	int x;
-           	x = i * plist[j];
-           	if(x > N) break;
-           	not_prime[x] = 1;
-           	if(i % plist[j] == 0) break;
-       	}
-   	}
-   ```
-   
-   ###   小波树
-   
-   静态数据结构
-   
-   区间第k小
-   
-   区间某个数出现的频率。
-   
-   区间小于等于某个数的个数
-   
-   ```c++
-   struct BitRank {
-       // block 管理一行一行的bit
-       std::vector<unsigned long long> block;
-       std::vector<unsigned int> count;
-       BitRank() {}
-       // 位向量长度
-       void resize(const unsigned int num) {
-           block.resize(((num + 1) >> 6) + 1, 0);
-           count.resize(block.size(), 0);
+   i128 power(i128 a, i128 n, i128 mod) {
+       i128 res = 1;
+       while (n) {
+           if (n & 1) res = mul(res, a, mod);
+           a = mul(a, a, mod);
+           n >>= 1;
        }
-       // 设置i位bit
-       void set(const unsigned int i, const unsigned long long val) {
-           block[i >> 6] |= (val << (i & 63));
-       }
-       void build() {
-           for (unsigned int i = 1; i < block.size(); i++) {
-               count[i] = count[i - 1] + __builtin_popcountll(block[i - 1]);
-           }
-       }
-       // [0, i) 1的个数
-       unsigned int rank1(const unsigned int i) const {
-           return count[i >> 6] +
-               __builtin_popcountll(block[i >> 6] & ((1ULL << (i & 63)) - 1ULL));
-       }
-       // [i, j) 1的个数
-       unsigned int rank1(const unsigned int i, const unsigned int j) const {
-           return rank1(j) - rank1(i);
-       }
-       // [0, i) 0的个数
-       unsigned int rank0(const unsigned int i) const { return i - rank1(i); }
-       // [i, j) 0的个数
-       unsigned int rank0(const unsigned int i, const unsigned int j) const {
-           return rank0(j) - rank0(i);
-       }
-   };
-   
-   
-   class WaveletMatrix {
-   private:
-       unsigned int height;
-       std::vector<BitRank> B;
-       std::vector<int> pos;
-   
-   public:
-       WaveletMatrix() {}
-       WaveletMatrix(std::vector<int> vec)
-           : WaveletMatrix(vec, *std::max_element(vec.begin(), vec.end()) + 1) {}
-       // sigma: 字母表大小(字符串的话)，数字序列的话是数的种类
-       WaveletMatrix(std::vector<int> vec, const unsigned int sigma) {
-           init(vec, sigma);
-       }
-       void init(std::vector<int>& vec, const unsigned int sigma) {
-           height = (sigma == 1) ? 1 : (64 - __builtin_clzll(sigma - 1));
-           B.resize(height), pos.resize(height);
-           for (unsigned int i = 0; i < height; ++i) {
-               B[i].resize(vec.size());
-               for (unsigned int j = 0; j < vec.size(); ++j) {
-                   B[i].set(j, get(vec[j], height - i - 1));
-               }
-               B[i].build();
-               auto it = stable_partition(vec.begin(), vec.end(), [&](int c) {
-                   return !get(c, height - i - 1);
-               });
-               pos[i] = it - vec.begin();
-           }
-       }
-   
-       int get(const int val, const int i) { return val >> i & 1; }
-       // [l, r) 中val出现的频率
-   
-       int rank(const int val, const int l, const int r) {
-           return rank(val, r) - rank(val, l);
-       }
-       // [0, i) 中val出现的频率
-       int rank(int val, int i) {
-           int p = 0;
-           for (unsigned int j = 0; j < height; ++j) {
-               if (get(val, height - j - 1)) {
-                   p = pos[j] + B[j].rank1(p);
-                   i = pos[j] + B[j].rank1(i);
-               } else {
-                   p = B[j].rank0(p);
-                   i = B[j].rank0(i);
-               }
-           }
-           return i - p;
-       }
-       // [l, r) 中k小  找区间第三小就是 封装第二小 返回的是值
-       int quantile(int k, int l, int r) {
-           int res = 0;
-           for (unsigned int i = 0; i < height; ++i) {
-               const int j = B[i].rank0(l, r);
-               if (j > k) {
-                   l = B[i].rank0(l);
-                   r = B[i].rank0(r);
-               } else {
-                   l = pos[i] + B[i].rank1(l);
-                   r = pos[i] + B[i].rank1(r);
-                   k -= j;
-                   res |= (1 << (height - i - 1));
-               }
-           }
-           return res;
-       }
-       int rangefreq(const int i, const int j, const int a, const int b, const int l,
-                     const int r, const int x) {
-           if (i == j || r <= a || b <= l) return 0;
-           const int mid = (l + r) >> 1;
-           if (a <= l && r <= b) {
-               return j - i;
-           } else {
-               const int left =
-                   rangefreq(B[x].rank0(i), B[x].rank0(j), a, b, l, mid, x + 1);
-               const int right = rangefreq(pos[x] + B[x].rank1(i),
-                                           pos[x] + B[x].rank1(j), a, b, mid, r, x + 1);
-               return left + right;
-           }
-       }
-       // [l,r) 在[a, b) 值域的数字个数
-       int rangefreq(const int l, const int r, const int a, const int b) {
-           return rangefreq(l, r, a, b, 0, 1 << height, 0);
-       }
-       int rangemin(const int i, const int j, const int a, const int b, const int l,
-                    const int r, const int x, const int val) {
-           if (i == j || r <= a || b <= l) return -1;
-           if (r - l == 1) return val;
-           const int mid = (l + r) >> 1;
-           const int res =
-               rangemin(B[x].rank0(i), B[x].rank0(j), a, b, l, mid, x + 1, val);
-           if (res < 0)
-               return rangemin(pos[x] + B[x].rank1(i), pos[x] + B[x].rank1(j), a, b, mid,
-                               r, x + 1, val + (1 << (height - x - 1)));
-           else
-               return res;
-       }
-       // [l,r) 在[a,b) 值域内存在的最小值是什么，不存在返回-1
-       int rangemin(int l, int r, int a, int b) {
-           return rangemin(l, r, a, b, 0, 1 << height, 0, 0);
-       }
-   };
-   
-   WaveletMatrix T(a);
-   ```
-   
-   ### O(n) 区间每个数的约数个数
-   
-   ```c++
-   int f[N + 1],cnt[N + 1],prime[N + 1];	
-   	for(int i = 2; i < N; i++) {
-   		if(prime[i] == 0) {
-   			prime[ ++prime[0] ] = i;
-   			f[i] = 2; // 约数个数
-   			cnt[i] = 1; //i中prime[j]的次数
-   		}
-   		for(int j = 1; j <= prime[0]; j++) {
-   			if(prime[j] * i > N) break;
-   			prime[ prime[j] * i ] = 1;
-   			if(i % prime[j] == 0) {
-   				f[ prime[j] * i ] = f[i] / (cnt[i] + 1) * (cnt[i] + 2); // 不互质
-   				cnt[ prime[j] * i ] = cnt[i] + 1;
-   				break;
-   			}
-   			else {
-   				f[ prime[j] * i ] = f[prime[j]] * f[i]; // 互质
-   				cnt[ prime[j] * i ] = 1; 
-   			}
-   		}
-   	}
-   ```
-   
-   ### 大于 x 的最小二的幂次
-   
-   ```c++
-   i64 NPT(i64 x) {
-       if (x <= 0) return 1;
-       // 如果 x 已经是二的幂次，直接返回 x
-       if ((x & (x - 1)) == 0) return x;
-       // 找到大于 x 的最小二的幂次
-       int h_bit = 63 - __builtin_clzll(x); // 使用 GCC/Clang 内置函数
-       i64 res = 1LL << (h_bit + 1);
-       // 如果结果超出了 long long 的范围，返回 -1 作为错误信号
-       if (res < 0) return -1;
        return res;
    }
-   ```
    
-   ### 归并排序
    
-   ```c++
-   i64 msort(std::vector<int> &a,int l,int r)
-   {
-       if(l >= r) return 0;
-       int mid = (l + r) / 2;
-       msort(a,l,mid); 
-       msort(a,mid+1,r);
-       int i = l, j = mid + 1,k = l;
-       while(i <= mid && j <= r)
-       {
-           if(a[i] <= a[j])  b[k++] = a[i++];
-           else {
-               b[k++] = a[j++];
-               ans += (mid - i + 1);
+   bool miller_rabin(i64 n) {
+       if (n < 2) return false;
+       if (n == 2) return true;
+       if (n % 2 == 0) return false;
+       
+       i64 d = n - 1;
+       int s = 0;
+       while (d % 2 == 0) {
+           d /= 2;
+           s++;
+       }
+       for (int a : {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}) {
+           if (n == a) return true;
+           if (n % a == 0) return false;
+           
+           i128 t = d;
+           i128 y = power(a, t, n);
+           while (t != n-1 && y != 1 && y != n-1) {
+               y = mul(y, y, n);
+               t *= 2;
+           }
+           if (y != n-1 && t % 2 == 0) return false;
+       }
+       return true;
+   }
+   
+   i64 pollard_rho(i64 n) {  // O(n^(1/4))
+       if (n == 1) return n;
+       if (n % 2 == 0) return 2;
+       if (miller_rabin(n)) return n;
+       
+       auto f = [n](i128 x) -> i128 { 
+           return (mul(x, x, n) + rand() % (n-1) + 1) % n;
+       };
+       
+       i128 x = rand() % (n-1) + 1;
+       i128 y = x;
+       i128 prd = 1;
+       i64 i = 0, k = 2;
+       
+       while (true) {
+           i++;
+           x = f(x);
+           prd = mul(prd, abs(y - x), n);
+           
+           if (i == k || prd == 0) {
+               if (prd) {
+                   i64 d = __gcd((i64)prd, n);
+                   if (d != 1) return d;
+               }
+               if (i == k) {
+                   y = x;
+                   k *= 2;
+               }
+           }
+           
+           if (i > 1000000) {
+               i64 d = __gcd((i64)abs(y - x), n);
+               if (d > 1 && d < n) return d;
+               x = rand() % (n-1) + 1;
+               y = x;
+               i = 0;
+               k = 2;
+               prd = 1;
            }
        }
-       while(i <= mid) b[k++] = a[i++];
-       while(j <= r) b[k++] = a[j++];
-       for(int i = l; i <= r; i++)  a[i] = b[i];
-   	return ans;
+   }
+   
+   void factorize(i64 n, vector<i64>& factors) {  
+       if (n == 1) return;
+       if (miller_rabin(n)) {
+           factors.push_back(n);
+           return;
+       }
+       i64 d = pollard_rho(n);
+       factorize(d, factors);
+       factorize(n/d, factors);
+   }
+   vector<i64> Fget(const vector<i64>& pro) {  //dlogd  所有因子
+       unordered_map<i64, int> count;
+       for(auto x : pro) {
+           count[x]++;
+       }
+       vector<i64> factors = {1};
+       for(auto [prime, cnt] : count) {
+           int size = factors.size();
+           i64 mul = 1;
+           for(int i = 0; i < cnt; i++) {
+               mul *= prime;
+               for(int j = 0; j < size; j++) {
+                   factors.push_back(factors[j] * mul);
+               }
+           }
+       }
+       sort(factors.begin(), factors.end());
+       return factors;
    }
    ```
+
    
+
+   ```
+
+
+### 线性筛素数
+
+```c++
+	for(int i = 2;i < N; i++) {
+    	if(not_prime[i] == 0) plist[++cnt] = i;
+    	for(int j = 1;j <= cnt;j++)
+    	{
+        	int x;
+        	x = i * plist[j];
+        	if(x > N) break;
+        	not_prime[x] = 1;
+        	if(i % plist[j] == 0) break;
+    	}
+	}
+   ```
+
+   ###   小波树
+
+   静态数据结构
+
+   区间第k小
+
+   区间某个数出现的频率。
+
+   区间小于等于某个数的个数
+
+   ```c++
+struct BitRank {
+    // block 管理一行一行的bit
+    std::vector<unsigned long long> block;
+    std::vector<unsigned int> count;
+    BitRank() {}
+    // 位向量长度
+    void resize(const unsigned int num) {
+        block.resize(((num + 1) >> 6) + 1, 0);
+        count.resize(block.size(), 0);
+    }
+    // 设置i位bit
+    void set(const unsigned int i, const unsigned long long val) {
+        block[i >> 6] |= (val << (i & 63));
+    }
+    void build() {
+        for (unsigned int i = 1; i < block.size(); i++) {
+            count[i] = count[i - 1] + __builtin_popcountll(block[i - 1]);
+        }
+    }
+    // [0, i) 1的个数
+    unsigned int rank1(const unsigned int i) const {
+        return count[i >> 6] +
+            __builtin_popcountll(block[i >> 6] & ((1ULL << (i & 63)) - 1ULL));
+    }
+    // [i, j) 1的个数
+    unsigned int rank1(const unsigned int i, const unsigned int j) const {
+        return rank1(j) - rank1(i);
+    }
+    // [0, i) 0的个数
+    unsigned int rank0(const unsigned int i) const { return i - rank1(i); }
+    // [i, j) 0的个数
+    unsigned int rank0(const unsigned int i, const unsigned int j) const {
+        return rank0(j) - rank0(i);
+    }
+};
+
+
+class WaveletMatrix {
+private:
+    unsigned int height;
+    std::vector<BitRank> B;
+    std::vector<int> pos;
+
+public:
+    WaveletMatrix() {}
+    WaveletMatrix(std::vector<int> vec)
+        : WaveletMatrix(vec, *std::max_element(vec.begin(), vec.end()) + 1) {}
+    // sigma: 字母表大小(字符串的话)，数字序列的话是数的种类
+    WaveletMatrix(std::vector<int> vec, const unsigned int sigma) {
+        init(vec, sigma);
+    }
+    void init(std::vector<int>& vec, const unsigned int sigma) {
+        height = (sigma == 1) ? 1 : (64 - __builtin_clzll(sigma - 1));
+        B.resize(height), pos.resize(height);
+        for (unsigned int i = 0; i < height; ++i) {
+            B[i].resize(vec.size());
+            for (unsigned int j = 0; j < vec.size(); ++j) {
+                B[i].set(j, get(vec[j], height - i - 1));
+            }
+            B[i].build();
+            auto it = stable_partition(vec.begin(), vec.end(), [&](int c) {
+                return !get(c, height - i - 1);
+            });
+            pos[i] = it - vec.begin();
+        }
+    }
+
+    int get(const int val, const int i) { return val >> i & 1; }
+    // [l, r) 中val出现的频率
+
+    int rank(const int val, const int l, const int r) {
+        return rank(val, r) - rank(val, l);
+    }
+    // [0, i) 中val出现的频率
+    int rank(int val, int i) {
+        int p = 0;
+        for (unsigned int j = 0; j < height; ++j) {
+            if (get(val, height - j - 1)) {
+                p = pos[j] + B[j].rank1(p);
+                i = pos[j] + B[j].rank1(i);
+            } else {
+                p = B[j].rank0(p);
+                i = B[j].rank0(i);
+            }
+        }
+        return i - p;
+    }
+    // [l, r) 中k小  找区间第三小就是 封装第二小 返回的是值
+    int quantile(int k, int l, int r) {
+        int res = 0;
+        for (unsigned int i = 0; i < height; ++i) {
+            const int j = B[i].rank0(l, r);
+            if (j > k) {
+                l = B[i].rank0(l);
+                r = B[i].rank0(r);
+            } else {
+                l = pos[i] + B[i].rank1(l);
+                r = pos[i] + B[i].rank1(r);
+                k -= j;
+                res |= (1 << (height - i - 1));
+            }
+        }
+        return res;
+    }
+    int rangefreq(const int i, const int j, const int a, const int b, const int l,
+                  const int r, const int x) {
+        if (i == j || r <= a || b <= l) return 0;
+        const int mid = (l + r) >> 1;
+        if (a <= l && r <= b) {
+            return j - i;
+        } else {
+            const int left =
+                rangefreq(B[x].rank0(i), B[x].rank0(j), a, b, l, mid, x + 1);
+            const int right = rangefreq(pos[x] + B[x].rank1(i),
+                                        pos[x] + B[x].rank1(j), a, b, mid, r, x + 1);
+            return left + right;
+        }
+    }
+    // [l,r) 在[a, b) 值域的数字个数
+    int rangefreq(const int l, const int r, const int a, const int b) {
+        return rangefreq(l, r, a, b, 0, 1 << height, 0);
+    }
+    int rangemin(const int i, const int j, const int a, const int b, const int l,
+                 const int r, const int x, const int val) {
+        if (i == j || r <= a || b <= l) return -1;
+        if (r - l == 1) return val;
+        const int mid = (l + r) >> 1;
+        const int res =
+            rangemin(B[x].rank0(i), B[x].rank0(j), a, b, l, mid, x + 1, val);
+        if (res < 0)
+            return rangemin(pos[x] + B[x].rank1(i), pos[x] + B[x].rank1(j), a, b, mid,
+                            r, x + 1, val + (1 << (height - x - 1)));
+        else
+            return res;
+    }
+    // [l,r) 在[a,b) 值域内存在的最小值是什么，不存在返回-1
+    int rangemin(int l, int r, int a, int b) {
+        return rangemin(l, r, a, b, 0, 1 << height, 0, 0);
+    }
+};
+
+WaveletMatrix T(a);
+   ```
+
+   ### O(n) 区间每个数的约数个数
+
+   ```c++
+int f[N + 1],cnt[N + 1],prime[N + 1];	
+	for(int i = 2; i < N; i++) {
+		if(prime[i] == 0) {
+			prime[ ++prime[0] ] = i;
+			f[i] = 2; // 约数个数
+			cnt[i] = 1; //i中prime[j]的次数
+		}
+		for(int j = 1; j <= prime[0]; j++) {
+			if(prime[j] * i > N) break;
+			prime[ prime[j] * i ] = 1;
+			if(i % prime[j] == 0) {
+				f[ prime[j] * i ] = f[i] / (cnt[i] + 1) * (cnt[i] + 2); // 不互质
+				cnt[ prime[j] * i ] = cnt[i] + 1;
+				break;
+			}
+			else {
+				f[ prime[j] * i ] = f[prime[j]] * f[i]; // 互质
+				cnt[ prime[j] * i ] = 1; 
+			}
+		}
+	}
+   ```
+
+   ### 大于 x 的最小二的幂次
+
+   ```c++
+i64 NPT(i64 x) {
+    if (x <= 0) return 1;
+    // 如果 x 已经是二的幂次，直接返回 x
+    if ((x & (x - 1)) == 0) return x;
+    // 找到大于 x 的最小二的幂次
+    int h_bit = 63 - __builtin_clzll(x); // 使用 GCC/Clang 内置函数
+    i64 res = 1LL << (h_bit + 1);
+    // 如果结果超出了 long long 的范围，返回 -1 作为错误信号
+    if (res < 0) return -1;
+    return res;
+}
+   ```
+
+   ### 归并排序
+
+   ```c++
+i64 msort(std::vector<int> &a,int l,int r)
+{
+    if(l >= r) return 0;
+    int mid = (l + r) / 2;
+    msort(a,l,mid); 
+    msort(a,mid+1,r);
+    int i = l, j = mid + 1,k = l;
+    while(i <= mid && j <= r)
+    {
+        if(a[i] <= a[j])  b[k++] = a[i++];
+        else {
+            b[k++] = a[j++];
+            ans += (mid - i + 1);
+        }
+    }
+    while(i <= mid) b[k++] = a[i++];
+    while(j <= r) b[k++] = a[j++];
+    for(int i = l; i <= r; i++)  a[i] = b[i];
+	return ans;
+}
+   ```
+
    ### DSU(并查集）
+
 ```
 class DSU {
 public:
@@ -1538,6 +1554,7 @@ public:
     }
 };
 ```
+
 ### 单调队列
 
 单调队列在维护单调性的过程中，能够高效地完成队列首元素的删除操作，类似于滑动窗口移动左指针。可用于优化$DP$ 
@@ -1561,8 +1578,10 @@ for(int i = 0; i < n; i++) {
         if(i >= m && dec.front() == i-m) dec.pop_front();
 }
 ```
+
 ### LCA
-```
+
+```c++
 class TreeLCA {
 public:
     int n;
