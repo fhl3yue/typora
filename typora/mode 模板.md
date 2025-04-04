@@ -1,4 +1,4 @@
-### 佛祖
+![image](https://github.com/user-attachments/assets/db708a58-408c-454c-9a9b-6b4f1bbbaebb)### 佛祖
 
 long long : 9,223,372,036,854,775,807  =  9 * $10^{18}$
 
@@ -1371,83 +1371,101 @@ std::vector<int> exkmp(std::string s, std::string t) {
 
    ```c++
 struct BitRank {
-    // block 管理一行一行的bit
-    std::vector<unsigned long long> block;
-    std::vector<unsigned int> count;
+    // 64 位块存储位向量
+    vector<unsigned long long> block;
+    vector<unsigned int> count;
+    
     BitRank() {}
-    // 位向量长度
+    
+    // 分配 block 与 count：num 表示位向量长度
     void resize(const unsigned int num) {
         block.resize(((num + 1) >> 6) + 1, 0);
         count.resize(block.size(), 0);
     }
-    // 设置i位bit
+    
+    // 设置第 i 位为 val（通常为 0 或 1）
     void set(const unsigned int i, const unsigned long long val) {
         block[i >> 6] |= (val << (i & 63));
     }
+    
+    // 构建前缀和数组 count，用于快速查询
     void build() {
         for (unsigned int i = 1; i < block.size(); i++) {
             count[i] = count[i - 1] + __builtin_popcountll(block[i - 1]);
         }
     }
-    // [0, i) 1的个数
+    
+    // 查询 [0, i) 内 1 的个数
     unsigned int rank1(const unsigned int i) const {
         return count[i >> 6] +
             __builtin_popcountll(block[i >> 6] & ((1ULL << (i & 63)) - 1ULL));
     }
-    // [i, j) 1的个数
+    
+    // 查询 [i, j) 内 1 的个数
     unsigned int rank1(const unsigned int i, const unsigned int j) const {
         return rank1(j) - rank1(i);
     }
-    // [0, i) 0的个数
-    unsigned int rank0(const unsigned int i) const { return i - rank1(i); }
-    // [i, j) 0的个数
+    
+    // 查询 [0, i) 内 0 的个数
+    unsigned int rank0(const unsigned int i) const { 
+        return i - rank1(i); 
+    }
+    
+    // 查询 [i, j) 内 0 的个数
     unsigned int rank0(const unsigned int i, const unsigned int j) const {
         return rank0(j) - rank0(i);
     }
 };
 
-
+template<class T>
 class WaveletMatrix {
 private:
-    unsigned int height;
-    std::vector<BitRank> B;
-    std::vector<int> pos;
-
+    unsigned int height;     
+    vector<BitRank> B;           
+    vector<int> pos;            
 public:
     WaveletMatrix() {}
-    WaveletMatrix(std::vector<int> vec)
-        : WaveletMatrix(vec, *std::max_element(vec.begin(), vec.end()) + 1) {}
-    // sigma: 字母表大小(字符串的话)，数字序列的话是数的种类
-    WaveletMatrix(std::vector<int> vec, const unsigned int sigma) {
-        init(vec, sigma);
+    WaveletMatrix(const vector<T>& vec)
+        : WaveletMatrix(vec, *max_element(vec.begin(), vec.end()) + 1) {}
+    
+    WaveletMatrix(const vector<T>& vec, const T sigma) {
+        vector<T> cp = vec;
+        init(cp, sigma);
     }
-    void init(std::vector<int>& vec, const unsigned int sigma) {
-        height = (sigma == 1) ? 1 : (64 - __builtin_clzll(sigma - 1));
-        B.resize(height), pos.resize(height);
+    void init(vector<T>& vec, const T sigma) {
+        if(sigma == 1)
+            height = 1;
+        else
+            height = 64 - __builtin_clzll((unsigned long long)(sigma - 1));
+        
+        B.resize(height);
+        pos.resize(height);
         for (unsigned int i = 0; i < height; ++i) {
             B[i].resize(vec.size());
             for (unsigned int j = 0; j < vec.size(); ++j) {
                 B[i].set(j, get(vec[j], height - i - 1));
             }
             B[i].build();
-            auto it = stable_partition(vec.begin(), vec.end(), [&](int c) {
+            auto it = stable_partition(vec.begin(), vec.end(), [&](T c){
                 return !get(c, height - i - 1);
             });
             pos[i] = it - vec.begin();
         }
     }
-
-    int get(const int val, const int i) { return val >> i & 1; }
-    // [l, r) 中val出现的频率
-
-    int rank(const int val, const int l, const int r) {
+    
+    // 返回数值 val 在第 i 位的二进制值（0 或 1）
+    int get(const T val, const int i) const {
+        return int((val >> i) & 1);
+    }
+    // 查询区间 [l, r) 中数值 val 的频次
+    int rank(const T val, const int l, const int r) {
         return rank(val, r) - rank(val, l);
     }
-    // [0, i) 中val出现的频率
-    int rank(int val, int i) {
+    // 查询 [0, i) 中数值 val 的频次
+    int rank(T val, int i) {
         int p = 0;
         for (unsigned int j = 0; j < height; ++j) {
-            if (get(val, height - j - 1)) {
+            if(get(val, height - j - 1)) {
                 p = pos[j] + B[j].rank1(p);
                 i = pos[j] + B[j].rank1(i);
             } else {
@@ -1457,57 +1475,56 @@ public:
         }
         return i - p;
     }
-    // [l, r) 中k小  找区间第三小就是 封装第二小 返回的是值
-    int quantile(int k, int l, int r) {
-        int res = 0;
+    
+    // 查询区间 [l, r) 中第 k 小的数（k 从 0 开始）
+    T quantile(int k, int l, int r) {
+        T res = 0;
         for (unsigned int i = 0; i < height; ++i) {
-            const int j = B[i].rank0(l, r);
-            if (j > k) {
+            int zeros = B[i].rank0(l, r);
+            if(zeros > k) {
                 l = B[i].rank0(l);
                 r = B[i].rank0(r);
             } else {
                 l = pos[i] + B[i].rank1(l);
                 r = pos[i] + B[i].rank1(r);
-                k -= j;
-                res |= (1 << (height - i - 1));
+                k -= zeros;
+                res |= (T(1) << (height - i - 1));
             }
         }
         return res;
     }
-    int rangefreq(const int i, const int j, const int a, const int b, const int l,
-                  const int r, const int x) {
-        if (i == j || r <= a || b <= l) return 0;
-        const int mid = (l + r) >> 1;
-        if (a <= l && r <= b) {
-            return j - i;
-        } else {
-            const int left =
-                rangefreq(B[x].rank0(i), B[x].rank0(j), a, b, l, mid, x + 1);
-            const int right = rangefreq(pos[x] + B[x].rank1(i),
-                                        pos[x] + B[x].rank1(j), a, b, mid, r, x + 1);
-            return left + right;
-        }
-    }
-    // [l,r) 在[a, b) 值域的数字个数
-    int rangefreq(const int l, const int r, const int a, const int b) {
-        return rangefreq(l, r, a, b, 0, 1 << height, 0);
-    }
-    int rangemin(const int i, const int j, const int a, const int b, const int l,
-                 const int r, const int x, const int val) {
-        if (i == j || r <= a || b <= l) return -1;
-        if (r - l == 1) return val;
-        const int mid = (l + r) >> 1;
-        const int res =
-            rangemin(B[x].rank0(i), B[x].rank0(j), a, b, l, mid, x + 1, val);
-        if (res < 0)
-            return rangemin(pos[x] + B[x].rank1(i), pos[x] + B[x].rank1(j), a, b, mid,
-                            r, x + 1, val + (1 << (height - x - 1)));
+    T rangemin(const int i, const int j, const T a, const T b,
+               const T l, const T r, const int x, const T val) {
+        if(i == j || r <= a || b <= l) return -1;
+        if(r - l == 1) return val;
+        const T mid = (l + r) >> 1;
+        T res = rangemin(B[x].rank0(i), B[x].rank0(j), a, b, l, mid, x + 1, val);
+        if(res < 0)
+            return rangemin(pos[x] + B[x].rank1(i), pos[x] + B[x].rank1(j),
+                           a, b, mid, r, x + 1, val + (T(1) << (height - x - 1)));
         else
             return res;
     }
-    // [l,r) 在[a,b) 值域内存在的最小值是什么，不存在返回-1
-    int rangemin(int l, int r, int a, int b) {
-        return rangemin(l, r, a, b, 0, 1 << height, 0, 0);
+    //查询区间 [l, r) 内，值域 [a, b) 内存在的最小值；若不存在返回 -1
+    T rangemin(const int l, const int r, const T a, const T b) {
+        return rangemin(l, r, a, b, 0, (T(1) << height), 0, 0);
+    }
+    T rangemax(const int i, const int j, const T a, const T b,
+               const T l, const T r, const int x, const T val) {
+        if(i == j || r <= a || b <= l) return -1;
+        if(r - l == 1) return val;
+        const T mid = (l + r) >> 1;
+        T res = rangemax(pos[x] + B[x].rank1(i), pos[x] + B[x].rank1(j),
+                          a, b, mid, r, x + 1, val + (T(1) << (height - x - 1)));
+        if(res < 0)
+            return rangemax(B[x].rank0(i), B[x].rank0(j),
+                           a, b, l, mid, x + 1, val);
+        else
+            return res;
+    }
+    //查询区间 [l, r) 内，值域 [a, b) 内存在的最大值；若不存在返回 -1
+    T rangemax(const int l, const int r, const T a, const T b) {
+        return rangemax(l, r, a, b, 0, (T(1) << height), 0, 0);
     }
 };
 
