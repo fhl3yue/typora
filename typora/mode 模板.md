@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/db708a58-408c-454c-9a9b-6b4f1bbbaebb)### 佛祖
+### 佛祖
 
 long long : 9,223,372,036,854,775,807  =  9 * $10^{18}$
 
