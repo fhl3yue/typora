@@ -57,7 +57,7 @@ public:
     }
 };
 ```
-**查找某一个串是否是 s1 字串**
+### 查找某一个串是否是 s1 字串
 
 ```c++
 	string s1;
@@ -69,13 +69,13 @@ public:
 	else cout << "YES" << endl;
 ```
 
-**最后出现的位置** 
+### 最后出现的位置
 
 ```c++
 int pos = s.rfind('#');
 ```
 
-**大小写字母**
+### 大小写字母
 
 ```c++
     std::string S;
@@ -88,13 +88,22 @@ int pos = s.rfind('#');
     std::cout << S << '\n';
 ```
 
-**字符串裁剪**
+### 字符串裁剪
 
 ```c++
-std::string sub = C.substr(i,j); // 从 i -> j w
+std::string sub = C.substr(i,j); // 从 i 开始，向后截取j个字符做串
 ```
-
-**string  查询字串数量**
+### 任意字符集都可作为分隔符时的查询
+```
+while(1){
+        size_t pos = s.find_first_of(".?!", st);
+        if(pos == string::npos) break;
+        string op = s.substr(st, pos - st);
+        S.push_back(op);
+        st = pos + 1;
+    }
+```
+### string  查询字串数量
 
 ```c++
 	auto query = [&] (std::string A, std::string a) -> int { // aaa -> aa = 1
@@ -108,4 +117,5 @@ std::string sub = C.substr(i,j); // 从 i -> j w
     	return count;
 	};
 ```
+
 
