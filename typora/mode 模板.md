@@ -1129,29 +1129,41 @@ void add(int u,int v,int w){
 ### $RMQ$  区间最大值
 
 ```c++
-int f[N][30];
-
-
-	std::vector<int> a(n+1),Log(n+1);
-	for(int i = 1; i <= n; i++) std::cin >> a[i];
-
-	for(int i = 1; i <= n; i++) f[i][0] = a[i];
-	Log[1] = 0, Log[2] = 1;
-	for(int i = 3; i <= n; i++) Log[i] = Log[i/2] + 1;
-	for(int j = 1; j <= Log[n]; j ++) {
-		for(int i = 1; i + (1 << j) - 1 <= n; i++) {
-			f[i][j] = std::max(f[i][j-1],f[i + (1 <<(j-1))][j-1]);
-		}
-	}
-	int q;
-	std::cin >> q;
-	for(int i = 1; i <= q; i++) {
-		int l,r;
-		std::cin >> l >> r;
-		int p = Log[r - l + 1];
-		int ans = std::max(f[l][p],f[r - (1 << p) + 1][p]);
-		std::cout << ans << '\n';
-	}
+template<typename T, typename Binary = std::function<T(const T&, const T&)>>
+class ST { // 1-index
+private:
+    std::vector<std::vector<T>> f;
+    std::vector<int> Log;
+    int n;
+    Binary op;
+    void buildLog() {
+        Log[1] = 0;
+        Log[2] = 1;
+        for(int i = 3; i <= n; i++) {
+            Log[i] = Log[i/2] + 1;
+        }
+    }
+public:
+    ST(const std::vector<T>& arr, Binary operation = std::max<T>)
+        : n(arr.size() - 1), op(operation) {
+        Log.resize(n + 1);
+        buildLog();
+        f.resize(n + 1, std::vector<T>(Log[n] + 1));
+        for(int i = 1; i <= n; i++) {
+            f[i][0] = arr[i];
+        }
+        for(int j = 1; j <= Log[n]; j++) {
+            for(int i = 1; i + (1 << j) - 1 <= n; i++) {
+                f[i][j] = op(f[i][j-1], f[i + (1 << (j-1))][j-1]);
+            }
+        }
+    }
+    T query(int l, int r) const {
+        int p = Log[r - l + 1];
+        return op(f[l][p], f[r - (1 << p) + 1][p]);
+    }
+};
+//ST<i64> st(a, [](const i64& a, const i64& b) { return std::max(a, b); });
 ```
 
 ### Z 函数
